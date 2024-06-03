@@ -25,7 +25,6 @@ The CUDA Toolkit enables GPU acceleration for intensive compute tasks. To instal
 PyTorch is a machine learning library that supports CUDA acceleration. Install PyTorch by running, make sure cuda is availabel:
 
 ```bash
-# For Windows/Linux/MacOS
 pip install torch torchvision torchaudio
 ```
 ## Step 3: Installing OpenFace
@@ -33,8 +32,18 @@ pip install torch torchvision torchaudio
 ## Step 5: specify the executor paths and configuration files in app.py Edit the file as follows:
 
 ```bash
-# For Windows/Linux/MacOS
 openface_path = "E:\Anaconda\envs\OpenFace\openface\FeatureExtraction.exe"
 opensmile_path = "../opensmile/bin/SMILExtract" 
 opensmile_config = "../opensmile/config/emobase/emobase2010.conf"
 ```
+## Step 6: After running the flask app, test it or retrieve the result with:
+```bash
+curl -X POST http://localhost:5000/detect-segmentation \
+    -F "video = /mnt/g/MultiModalDetect/CREMA-D/VideoExtracted/1001_DFA_ANG_XX/1001_DFA_ANG_XX.csv" \
+    -F "audio = /mnt/g/MultiModalDetect/CREMA-D/AudioWAV/1001_DFA_ANG_XX.wav" \
+    -F "user_id=123" \
+    -F "session_id=456" \
+    -F "segmentation_id=789" \
+    -F "total_questions=5"
+```
+
