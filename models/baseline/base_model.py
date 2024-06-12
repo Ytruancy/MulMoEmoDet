@@ -147,6 +147,14 @@ def basemodel_predict(video_features,audio_features):
         _, predicted_index = torch.max(outputs, 1)
         confidence = probabilities[0][predicted_index.item()].item()
         emotion_label = emotion_mapping[predicted_index.item()]
-        if confidence<0.4:
+        if emotion_label in ['Anger','Disgust','Fear','Sad'] and confidence>=0.7 :
+            stress_state = 1
+        else:
+            stress_state = 0
+        if confidence<=0.5:
             emotion_label = "Unspecified"
-    return emotion_label , confidence
+        if confidence<0.7:
+            emotion_level = "Neutral"
+        if confidence>=0.7:
+            emotion_level = "Evident"
+    return emotion_label , emotion_level, stress_state, confidence
