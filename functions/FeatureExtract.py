@@ -41,10 +41,11 @@ def FeatureExtract(video_path,audio_path,openface_path,opensmile_path,opensmile_
     if not Video_processed:
         video_root = "data/VideoExtracted"
         os.makedirs("data/VideoExtracted",exist_ok = True)
-        file_basename = os.path.basename(video_file)
-        output_dir = os.path.join(video_root, os.path.basename(video_file).replace(".mp4", ""))
+        file_basename = os.path.basename(video_path)
+        output_dir = os.path.join(video_root, os.path.basename(video_path).replace(".mp4", ""))
         output_csv = os.path.join(output_dir,file_basename.replace(".mp4", ".csv"))
-        os.system(f"{openface_path} -f {output_video} -out_dir {output_dir}")
+        os.system(f"{openface_path} -f {video_path} -out_dir {output_dir}")
+        print("processing video,will be output to,",output_dir)
         video_path = output_csv
     
     video_features = video_extract(video_path)

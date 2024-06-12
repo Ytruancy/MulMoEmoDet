@@ -5,6 +5,7 @@ from collections import defaultdict
 import subprocess
 import os
 import torch
+import ffmpeg
 from sklearn.preprocessing import LabelEncoder
 
 def parse_opensmile_output(file_path):
@@ -26,9 +27,16 @@ def parse_opensmile_output(file_path):
 
 
 def extract_audio_features(wav_file,opensmile_path,config_file):
+    if not wav_file.endswith(".wav"):
+        print("Converting audio file to wav")
+        _ , file_extension = os.path.splitext(wav_file)
+        converted_audio_file = wav_file.replace(file_extension,".wav")
+        ffmpeg.input(wav_file).output(converted_audio_file,format='wav').run()
+        wav_file = converted_audio_file
     output_root = "data/AudioExtracted/"
     os.makedirs(output_root, exist_ok = True)
     output_file = output_root+os.path.basename(wav_file).replace(".wav",".csv")
+    print(f"Processing audio, saving to {output_file}")
     if not os.path.exists(output_file):
         # Command to run OpenSMILE
         command = [

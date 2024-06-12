@@ -6,17 +6,17 @@ import os
 import shutil
 
 app = Flask(__name__)
-openface_path = "E:\Anaconda\envs\OpenFace\openface\FeatureExtraction.exe"
-opensmile_path = "../opensmile/bin/SMILExtract" 
-opensmile_config = "../opensmile/config/emobase/emobase2010.conf"
+openface_path = "OpenFace/build/bin/FeatureExtraction"
+opensmile_path = "opensmile/bin/SMILExtract" 
+opensmile_config = "opensmile/config/emobase/emobase2010.conf"
 
-# video_path = "/mnt/g/MultiModalDetect/CREMA-D/VideoExtracted/1001_DFA_ANG_XX/1001_DFA_ANG_XX.csv"
-# audio_path = "/mnt/g/MultiModalDetect/CREMA-D/AudioWAV/1001_DFA_ANG_XX.wav"
+#video_path = "../data/6ec6956f36194a38ef9382401e388ab198177cef031d4564c0efd6bbcd9fb406.mp4"
+#audio_path = "../data/6ec6956f36194a38ef9382401e388ab198177cef031d4564c0efd6bbcd9fb406_audio.wav"
 
-# video_features, audio_features = FeatureExtract(video_path,audio_path,openface_path,opensmile_path,opensmile_config)
-# print("feature extracted successfully")
-# emotion_label, confidence = basemodel_predict(video_features,audio_features)
-# print(emotion_label,confidence)
+#video_features, audio_features = FeatureExtract(video_path,audio_path,openface_path,opensmile_path,opensmile_config,False)
+#print("feature extracted successfully")
+#emotion_label, confidence = basemodel_predict(video_features,audio_features)
+#print(emotion_label,confidence)
 
 
 
@@ -25,6 +25,7 @@ def predict():
     #Create folder to store video&audio in app local directory
     video_path = request.form.get('video',type=str)
     audio_path = request.form.get('audio',type=str)
+    print("path: " + video_path)
     user_id = request.form.get('user_id',type=str)
     user_id = str(user_id)
     os.makedirs(os.path.join("data",user_id),exist_ok = True)
@@ -42,7 +43,11 @@ def predict():
     if not all([video_path, audio_path, user_id, session_id, question_id, total_segmentations]):
         return jsonify(status="error", message="Invalid input or missing parameters."), 400
     try:
-        video_features, audio_features = FeatureExtract(video_path,audio_path,openface_path,opensmile_path,opensmile_config)
+        if video_path.endswith(".csv"):
+            video_processed = True
+        else:
+            video_processed = False
+        video_features, audio_features = FeatureExtract(video_path,audio_path,openface_path,opensmile_path,opensmile_config,video_processed)
         # return jsonify(
         # status="success",
         # message = "feature extracted successfully"   

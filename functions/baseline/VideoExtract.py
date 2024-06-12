@@ -37,9 +37,9 @@ def histogram_features(movements: np.ndarray, num_bins: int = 10) -> np.ndarray:
 def calculate_movement(features):
     distances = []
     for i in range(68):
-        x = features[f' X_{i}']
-        y = features[f' Y_{i}']
-        z = features[f' Z_{i}']
+        x = features[f'X_{i}']
+        y = features[f'Y_{i}']
+        z = features[f'Z_{i}']
         distance = np.sqrt(np.diff(x)**2 + np.diff(y)**2 + np.diff(z)**2)
         distances.append(distance)
     distances = np.array(distances)
@@ -62,10 +62,10 @@ def video_extract(video_feature_path):
     Provide the extracted openface csv path, return builded video feature set
     """
     #Extract baseline video features
-    video_features = pd.read_csv(video_feature_path)
-    landmarks = video_features[[f" X_{i}" for i in range(68)] +
-                                   [f" Y_{i}" for i in range(68)] +
-                                   [f" Z_{i}" for i in range(68)]]
+    video_features = pd.read_csv(video_feature_path,on_bad_lines='skip')
+    landmarks = video_features[[f"X_{i}" for i in range(68)] +
+                                   [f"Y_{i}" for i in range(68)] +
+                                   [f"Z_{i}" for i in range(68)]]
     movements = calculate_movement(landmarks)
     poly_features = histogram_features(movements)
     poly_features = torch.tensor(poly_features, dtype=torch.float32)
