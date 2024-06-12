@@ -3,6 +3,8 @@ from werkzeug.utils import secure_filename
 from functions.FeatureExtract import FeatureExtract
 from models.baseline.base_model import basemodel_predict
 import os
+from collections import Counter
+from collections import defaultdict
 import shutil
 
 app = Flask(__name__)
@@ -27,10 +29,32 @@ opensmile_config = "../opensmile/config/emobase/emobase2010.conf"
 #emotion_label, confidence = basemodel_predict(video_features,audio_features)
 #print(emotion_label,confidence)
 
+result_emotion = defaultdict(lambda: defaultdict(list))
+result_emo_level = defaultdict(lambda: defaultdict(list))
+result_stress = defaultdict(lambda: defaultdict(list))
+
+
+def majority_vote(elements):
+    """
+    Returns the element that appears the most in the list.
+    If multiple elements have the same highest count, it returns one of them.
+    """
+    if not elements:
+        return None
+    
+    # Count the occurrences of each element
+    counts = Counter(elements)
+    
+    # Find the element with the maximum count
+    majority_element = max(counts, key=counts.get)
+    
+    return majority_element
+
+
 
 
 @app.route('/detect-segmentation', methods=['POST'])
-def predict():
+def predict_session():
     #Create folder to store video&audio in app local directory
     video_path = request.form.get('video',type=str)
     audio_path = request.form.get('audio',type=str)
@@ -62,6 +86,9 @@ def predict():
         # message = "feature extracted successfully"   
         #  )
         emotion_label,emotion_level, stress_state, confidence = basemodel_predict(video_features,audio_features)
+        result_emotion[user_id][session_id].append(emotion_label)
+        result_emo_level[user_id][session_id].append(emotion_level)
+        result_stress[user_id][session_id].append(stress_state)
     except FileNotFoundError:
         return jsonify(status="error", message="One or more file paths do not exist."), 400
     except Exception as e:
@@ -74,6 +101,32 @@ def predict():
         stress_detection=stress_state,
         confidence = confidence    
     )
+
+@app.route('/detect-total', methods=['POST'])
+def predict_total():
+    user_id = request.form.get('user_id',type=str)
+    user_id = str(user_id)
+    session_id = request.form.get('session_id',type=str)
+    total_segmentations = request.form.get('total_questions', type=str)
+    uploaded_questions = len(result_emo_level[user_id][session_id])
+    if not all([user_id, session_id, total_segmentations]):
+        return jsonify(status="error", message="Invalid input or missing parameters."), 400
+    try:
+        emotion_label = majority_vote(result_emotion[user_id][session_id])
+        emotion_level = majority_vote(result_emo_level[user_id][session_id])
+        stress_state = majority_vote(result_stress[user_id][session_id])
+    except FileNotFoundError:
+        return jsonify(status="error", message="One or more file paths do not exist."), 400
+    except Exception as e:
+        return jsonify(status="error", message=str(e)), 500
+    return jsonify(
+        status=f"success,getting summary result using {uploaded_questions} of {total_segmentations} question in current session",
+        emotional_detection=emotion_label,
+        emotion_level = emotion_level,
+        stress_detection=stress_state,   
+    )
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
