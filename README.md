@@ -1,3 +1,7 @@
+# Introduction
+A demo api used for multi-modal emotion and stress detection, dummy model currently embedded, SOTA model will be updated in the future
+
+
 # Installation Guide
 
 This document provides step-by-step instructions for installing CUDA Toolkit, PyTorch, OpenFace, and openSMILE. Additionally, you will learn how to specify executor paths and configuration files within `app.py`.
