@@ -1,5 +1,5 @@
 # Introduction
-A demo api used for multi-modal emotion and stress detection, dummy model currently embedded, SOTA model will be updated in the future
+A demo api used for multi-modal (currently using audio and video feature) emotion and stress detection, dummy model currently embedded, SOTA model will be updated in the future
 
 
 # Installation Guide
